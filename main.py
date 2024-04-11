@@ -31,7 +31,8 @@ def display_sudoku(Sudoku_table):
                 print(Sudoku_table[i][j])  # Print the last cell in the row and move to the next line
             else:
                 print(str(Sudoku_table[i][j]) + " ", end="")  # Print cell value followed by a space
-              
+
+#Part 2 Checking
 def find_empty_cell(Sudoku_table):
 
     # Search for an empty cell in the grid
@@ -42,44 +43,61 @@ def find_empty_cell(Sudoku_table):
 
     return None
 
+#Part 3 Validation
 def is_move_valid(Sudoku_table, num, position):
-    # Check if placing the `num` in `position` is valid in its row
+    # Check the row for the same number, excluding the current position
     for i in range(len(Sudoku_table[0])):
         if Sudoku_table[position[0]][i] == num and position[1] != i:
-            return False
+            return False  # Invalid move if the same number is found in the row
 
-    # Check if placing the `num` in `position` is valid in its column
+    # Check the column for the same number, excluding the current position
     for i in range(len(Sudoku_table)):
         if Sudoku_table[i][position[1]] == num and position[0] != i:
-            return False
+            return False  # Invalid move if the same number is found in the column
 
-    # Check if placing the `num` in `pos` is valid in the corresponding 3x3 box
+    # Identify the 3x3 subgrid that the position falls into
     box_x = position[1] // 3
     box_y = position[0] // 3
+    
+    # Check the subgrid for the same number, excluding the current position
     for i in range(box_y * 3, box_y * 3 + 3):
-        for j in range(box_x*3, box_x * 3 + 3):
+        for j in range(box_x * 3, box_x * 3 + 3):
             if Sudoku_table[i][j] == num and (i, j) != position:
-                return False
+                return False  # Invalid move if the same number is found in the 3x3 subgrid
 
-    return True
+    return True  # The move is valid if none of the above conditions are met
 
+
+
+#Part 4 Solving
 def solve_sudoku(Sudoku_table):
-    # Find the first empty cell in the Sudoku grid
+    
+    # Find the first empty cell in the grid
     empty_position = find_empty_cell(Sudoku_table)
-    # If no empty cells are found, the puzzle is solved
+    # If no empty cell is found, it means the puzzle is solved
     if not empty_position:
         return True
     else:
-        row, column = empty_position
+        row, column = empty_position  # Unpack the position of the empty cell
 
-    # Try placing numbers 1-9 in the empty cell
+    # Try all numbers from 1 to 9 in the empty cell
     for num in range(1, 10):
+        # Check if the current number can be placed in the empty cell without violating Sudoku rules
         if is_move_valid(Sudoku_table, num, (row, column)):
-            Sudoku_table[row][column] = num  # Place the number in the grid
+            Sudoku_table[row][column] = num  # Temporarily place the number in the grid
 
-            if solve_sudoku(Sudoku_table):  # Recursively attempt to solve with the current placement
-                return True
+            # Recursively try to solve the rest of the puzzle with this number in place
+            if solve_sudoku(Sudoku_table):
+                return True  # If successful, propagate the True result back up the recursion chain
 
-            Sudoku_table[row][column] = 0  # Backtrack by removing the number if the solution is not found
+            # If placing the current number doesn't lead to a solution, remove it and try the next number
+            Sudoku_table[row][column] = 0  # This is the backtracking step
 
-    return False
+    # If no number from 1 to 9 leads to a solution in the current configuration, return False
+    return False  # This triggers backtracking in the previous level of recursion
+
+#Finally Printing 
+#display_sudoku(Sudoku_table)
+#solve_sudoku(Sudoku_table)
+#print("___________________")
+#display_sudoku(Sudoku_table)
